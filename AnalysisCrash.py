@@ -13,9 +13,9 @@ def findFile(path, name) :
             result = findFile(sub_path, name)
             if result : return result
 
-def checkUUID(dysm, crash) :
+def checkUUID(dsym, crash) :
     # 取uuid
-    for uuidline in os.popen('dwarfdump --uuid ' + dysm).readlines():
+    for uuidline in os.popen('dwarfdump --uuid ' + dsym).readlines():
         arm = uuidline.find(' (arm64)')
         if arm > 6:
             uuid = uuidline[6:arm]
@@ -59,17 +59,17 @@ def main() :
     afterFile = inputcrash[:-6]
     afterFile += '_afterparse.crash'
 
-    #输入Dysm文件
-    print('Please Input Dysm File')
-    inputdysm = sys.stdin.readline()[:-1].strip()
-    dysm = inputdysm.replace('\\','')
-    while (checkUUID(dysm, crash) == 0) :
-        print('Please Input Correct Dysm File')
-        inputdysm = sys.stdin.readline()[:-1].strip()
-        dysm = inputdysm.replace('\\', '')
+    #输入dSYM文件
+    print('Please Input dSYM File')
+    inputdsym = sys.stdin.readline()[:-1].strip()
+    dsym = inputdsym.replace('\\','')
+    while (checkUUID(dsym, crash) == 0) :
+        print('Please Input Correct dSYM File')
+        inputdsym = sys.stdin.readline()[:-1].strip()
+        dsym = inputdsym.replace('\\', '')
 
     #执行解析
-    os.system(filelist + ' ' + inputcrash + ' ' + inputdysm + ' > ' + afterFile)
+    os.system(filelist + ' ' + inputcrash + ' ' + inputdsym + ' > ' + afterFile)
 
     print('Program Complete')
 

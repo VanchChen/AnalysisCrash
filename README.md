@@ -1,5 +1,5 @@
-# CompareDysm
-Input .Crash &amp; .Dysm to get a parsed crash info.
+# AnalysisCrash
+Analysis crash info while inputing .crash & .dSYM.
 
 # How To Use
 This file use only python3, so in Terminal u should...
