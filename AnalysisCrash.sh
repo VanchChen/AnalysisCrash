@@ -22,7 +22,24 @@ inputFile() {
 
 checkUUID() {
     uuid=`dwarfdump --uuid $2`
-    #echo $uuid
+    #去除中间间隔-
+    uuid=${uuid//-/}
+    #获取32位UUID
+    armv7id=${uuid% \(armv7*}
+    armv7id=${armv7id#*UUID: }
+    #获取64位UUID
+    arm64id=${uuid% \(arm64*}
+    arm64id=${arm64id##*UUID: }
+    #打开crash文件查找UUID
+    grep "$arm64id" "$1"
+    if [ $? -ne 0 ]; then
+        return 1;
+    fi
+    grep "$armv7id" "$1"
+    if [ $? -ne 0 ]; then
+        return 1;
+    fi
+
     return 0;
 }
 
@@ -44,22 +61,20 @@ while [ $dsymSuccess = false ]; do
     inputFile 'Please Input dSYM File' 'dSYM'
     dsymPath=$filePath
     #检查是否匹配
-    checkUUID $crashPath $dsymPath
+    checkUUID "$crashPath" "$dsymPath"
     match=$?
-    echo 'match is '$match
     if [ $match -eq 0 ]; then
         echo 'UUID not match!'
     else
         dsymSuccess=true
     fi
 done
-echo "done"
-exit 0
 #先设置环境变量
 export DEVELOPER_DIR="/Applications/Xcode.app/Contents/Developer"
 #指定解析结果路径
 crashName=`basename $crashPath`
-afterPath=`dirname $crashPath`/${crashName%%.*}'_after.crash'
-echo $afterPath
+afterPath="$(dirname "$crashPath")"/"${crashName%%.*}""_after.crash"
 #开始解析
-#$toolPath $crashPath $dsymPath > $afterPath 
+$toolPath "$crashPath" "$dsymPath" > "$afterPath" 2> /dev/null 
+#成功提示
+echo "Job done!"
